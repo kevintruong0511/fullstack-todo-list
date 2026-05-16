@@ -1,52 +1,34 @@
 const TaskModel = require('./task.model');
 
+const notFound = () => {
+  const error = new Error('Task not found');
+  error.statusCode = 404;
+  return error;
+};
+
 class TaskService {
-  /**
-   * Get all tasks
-   */
-  static async getAllTasks() {
-    return await TaskModel.findAll();
+  static async getAllTasks(userId) {
+    return TaskModel.findAll(userId);
   }
 
-  /**
-   * Get a task by ID
-   */
-  static async getTaskById(id) {
-    const task = await TaskModel.findById(id);
-    if (!task) {
-      const error = new Error('Task not found');
-      error.statusCode = 404;
-      throw error;
-    }
+  static async getTaskById(id, userId) {
+    const task = await TaskModel.findById(id, userId);
+    if (!task) throw notFound();
     return task;
   }
 
-  /**
-   * Create a new task
-   */
-  static async createTask(data) {
-    return await TaskModel.create(data);
+  static async createTask(userId, data) {
+    return TaskModel.create(userId, data);
   }
 
-  /**
-   * Update a task
-   */
-  static async updateTask(id, data) {
-    // Check if task exists
-    await this.getTaskById(id);
-    return await TaskModel.update(id, data);
+  static async updateTask(id, userId, data) {
+    await this.getTaskById(id, userId);
+    return TaskModel.update(id, userId, data);
   }
 
-  /**
-   * Delete a task
-   */
-  static async deleteTask(id) {
-    const task = await TaskModel.delete(id);
-    if (!task) {
-      const error = new Error('Task not found');
-      error.statusCode = 404;
-      throw error;
-    }
+  static async deleteTask(id, userId) {
+    const task = await TaskModel.delete(id, userId);
+    if (!task) throw notFound();
     return task;
   }
 }

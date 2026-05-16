@@ -1,9 +1,10 @@
-import { useFilter } from '../../hooks/useFilter';
+import { NavLink } from 'react-router-dom';
 import { useTasks } from '../../hooks/useTasks';
 import { CATEGORIES } from '../../data/categories';
 
+const linkFor = (id) => (id === 'all' ? '/tasks' : `/tasks/category/${id}`);
+
 export default function Sidebar() {
-  const { category, setCategory } = useFilter();
   const { items } = useTasks();
 
   const getCount = (id) =>
@@ -15,15 +16,16 @@ export default function Sidebar() {
       <ul className="sidebar-list">
         {CATEGORIES.map((cat) => (
           <li key={cat.id}>
-            <button
-              className={`sidebar-item ${category === cat.id ? 'active' : ''}`}
-              onClick={() => setCategory(cat.id)}
+            <NavLink
+              to={linkFor(cat.id)}
+              end={cat.id === 'all'}
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
               style={{ '--cat-color': cat.color }}
             >
               <span className="sidebar-icon">{cat.icon}</span>
               <span className="sidebar-label">{cat.label}</span>
               <span className="sidebar-count">{getCount(cat.id)}</span>
-            </button>
+            </NavLink>
           </li>
         ))}
       </ul>
@@ -33,9 +35,9 @@ export default function Sidebar() {
       <p className="sidebar-heading">Quick Stats</p>
       <div className="sidebar-stats">
         {[
-          { label: 'Total',    value: items.length,                              color: '#6366f1' },
-          { label: 'Active',   value: items.filter(t=>t.status==='active').length,    color: '#f59e0b' },
-          { label: 'Done',     value: items.filter(t=>t.status==='completed').length, color: '#10b981' },
+          { label: 'Total',  value: items.length,                                       color: '#6366f1' },
+          { label: 'Active', value: items.filter((t) => t.status === 'active').length,    color: '#f59e0b' },
+          { label: 'Done',   value: items.filter((t) => t.status === 'completed').length, color: '#10b981' },
         ].map((s) => (
           <div key={s.label} className="stat-mini" style={{ '--stat-color': s.color }}>
             <span className="stat-mini-value">{s.value}</span>

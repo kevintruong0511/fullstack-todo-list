@@ -1,31 +1,43 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import TaskCard from '../components/ui/TaskCard';
 import TaskInput from '../components/ui/TaskInput';
 import FilterBar from '../components/ui/FilterBar';
 import Modal from '../components/ui/Modal';
 import { useTasks } from '../hooks/useTasks';
 import { useFilter } from '../hooks/useFilter';
+import { CATEGORIES } from '../data/categories';
 
 export default function TaskList() {
-  const { filtered, activeCount, add, toggle, remove, update } = useTasks();
+  const { category: urlCategory } = useParams();
+  const activeCategory = urlCategory || 'all';
+  const categoryMeta = CATEGORIES.find((c) => c.id === activeCategory) || CATEGORIES[0];
+
+  const { filtered, activeCount, add, toggle, remove, update } = useTasks(activeCategory);
   const { searchQuery, setSearch, priority, setPriority } = useFilter();
   const [editTask, setEditTask] = useState(null);
+
+  const handleAdd = (title, prio, cat) => {
+    const finalCategory = urlCategory || cat;
+    add(title, prio, finalCategory);
+  };
 
   return (
     <div className="page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">All Tasks</h1>
+          <h1 className="page-title">
+            <span style={{ marginRight: 8 }}>{categoryMeta.icon}</span>
+            {categoryMeta.label}
+          </h1>
           <p className="page-subtitle">
             {activeCount} task{activeCount !== 1 ? 's' : ''} remaining
           </p>
         </div>
       </div>
 
-      {/* Add Task */}
-      <TaskInput onAdd={add} />
+      <TaskInput onAdd={handleAdd} />
 
-      {/* Search + Priority Filter */}
       <div className="search-row">
         <div className="search-wrap">
           <span className="search-icon">🔍</span>
@@ -52,10 +64,8 @@ export default function TaskList() {
         </select>
       </div>
 
-      {/* Filter Tabs */}
       <FilterBar />
 
-      {/* Task List */}
       <div className="task-list">
         {filtered.length === 0 ? (
           <div className="empty-state">

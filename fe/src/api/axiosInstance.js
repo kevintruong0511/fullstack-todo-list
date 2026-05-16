@@ -15,7 +15,12 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (res) => res.data,
   (err) => {
-    console.error('API Error:', err?.response?.data || err.message);
+    if (err?.response?.status === 401) {
+      localStorage.removeItem('token');
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
+    }
     return Promise.reject(err);
   }
 );

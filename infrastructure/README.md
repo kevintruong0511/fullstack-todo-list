@@ -21,10 +21,10 @@ Lần đầu sẽ build cả 2 image `be` và `fe`. Các lần sau chỉ cần `
 | Service       | URL                                  |
 | ------------- | ------------------------------------ |
 | Frontend      | http://localhost:5173                |
-| Backend API   | http://localhost:5000                |
-| Swagger docs  | http://localhost:5000/api-docs       |
-| Health check  | http://localhost:5000/health         |
-| PostgreSQL    | `localhost:5432` (user/pass: `postgres`) |
+| Backend API   | http://localhost:5001                |
+| Swagger docs  | http://localhost:5001/api-docs       |
+| Health check  | http://localhost:5001/health         |
+| PostgreSQL    | `localhost:5435` (user/pass: `postgres`) |
 
 ## Hot reload
 

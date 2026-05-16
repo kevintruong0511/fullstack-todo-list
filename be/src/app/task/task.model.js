@@ -1,77 +1,92 @@
 const pool = require('../../../db');
 
+const TASK_COLUMNS = `
+  id,
+  user_id      AS "userId",
+  title,
+  description,
+  status,
+  priority,
+  category,
+  due_date     AS "dueDate",
+  created_at   AS "createdAt"
+`;
+
 class TaskModel {
-  /**
-   * Get all tasks ordered by creation date (newest first)
-   */
-  static async findAll() {
-    const query = 'SELECT * FROM tasks ORDER BY created_at DESC';
-    const { rows } = await pool.query(query);
+  static async findAll(userId) {
+    const { rows } = await pool.query(
+      `SELECT ${TASK_COLUMNS}
+       FROM tasks
+       WHERE user_id = $1
+       ORDER BY created_at DESC`,
+      [userId]
+    );
     return rows;
   }
 
-  /**
-   * Get a single task by ID
-   */
-  static async findById(id) {
-    const query = 'SELECT * FROM tasks WHERE id = $1';
-    const { rows } = await pool.query(query, [id]);
+  static async findById(id, userId) {
+    const { rows } = await pool.query(
+      `SELECT ${TASK_COLUMNS} FROM tasks WHERE id = $1 AND user_id = $2`,
+      [id, userId]
+    );
     return rows[0] || null;
   }
 
-  /**
-   * Create a new task
-   */
-  static async create({ title, priority = 'medium' }) {
-    const query = `
-      INSERT INTO tasks (title, priority)
-      VALUES ($1, $2)
-      RETURNING *
-    `;
-    const { rows } = await pool.query(query, [title, priority]);
+  static async create(userId, {
+    title,
+    description = null,
+    status = 'active',
+    priority = 'medium',
+    category = 'work',
+    dueDate = null,
+  }) {
+    const { rows } = await pool.query(
+      `INSERT INTO tasks (user_id, title, description, status, priority, category, due_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING ${TASK_COLUMNS}`,
+      [userId, title, description, status, priority, category, dueDate]
+    );
     return rows[0];
   }
 
-  /**
-   * Update an existing task
-   */
-  static async update(id, data) {
+  static async update(id, userId, data) {
+    const map = {
+      title: 'title',
+      description: 'description',
+      status: 'status',
+      priority: 'priority',
+      category: 'category',
+      dueDate: 'due_date',
+    };
     const fields = [];
     const values = [];
-    let paramIndex = 1;
+    let idx = 1;
 
-    if (data.title !== undefined) {
-      fields.push(`title = $${paramIndex++}`);
-      values.push(data.title);
-    }
-    if (data.status !== undefined) {
-      fields.push(`status = $${paramIndex++}`);
-      values.push(data.status);
-    }
-    if (data.priority !== undefined) {
-      fields.push(`priority = $${paramIndex++}`);
-      values.push(data.priority);
+    for (const [key, column] of Object.entries(map)) {
+      if (data[key] !== undefined) {
+        fields.push(`${column} = $${idx++}`);
+        values.push(data[key]);
+      }
     }
 
-    if (fields.length === 0) return this.findById(id);
+    if (fields.length === 0) return this.findById(id, userId);
 
-    values.push(id);
-    const query = `
-      UPDATE tasks
-      SET ${fields.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
-    `;
-    const { rows } = await pool.query(query, values);
+    values.push(id, userId);
+    const { rows } = await pool.query(
+      `UPDATE tasks
+       SET ${fields.join(', ')}
+       WHERE id = $${idx++} AND user_id = $${idx}
+       RETURNING ${TASK_COLUMNS}`,
+      values
+    );
     return rows[0] || null;
   }
 
-  /**
-   * Delete a task by ID
-   */
-  static async delete(id) {
-    const query = 'DELETE FROM tasks WHERE id = $1 RETURNING *';
-    const { rows } = await pool.query(query, [id]);
+  static async delete(id, userId) {
+    const { rows } = await pool.query(
+      `DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING ${TASK_COLUMNS}`,
+      [id, userId]
+    );
     return rows[0] || null;
   }
 }
