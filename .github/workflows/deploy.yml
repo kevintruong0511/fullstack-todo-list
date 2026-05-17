@@ -20,7 +20,7 @@ jobs:
           command_timeout: 15m
           script: |
             set -e
-            cd /root/todo-web
+            cd /root/fullstack-todo-list
             echo "==> git pull"
             git pull origin main
             echo "==> docker compose up --build"
