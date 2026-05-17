@@ -7,6 +7,11 @@ const MESSAGES = {
   TASKS_FOUND: 'Tasks retrieved successfully',
   TASK_NOT_FOUND: 'Task not found',
 
+  // User
+  USER_NOT_FOUND: 'User not found',
+  USER_ONBOARDING_UPDATED: 'Onboarding status updated',
+  INVALID_ONBOARDING_FLAG: 'Field "completed" must be a boolean',
+
   // Auth
   AUTH_REGISTERED: 'Account created successfully',
   AUTH_LOGGED_IN: 'Logged in successfully',

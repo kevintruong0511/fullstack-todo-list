@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import OnboardingTour from './components/onboarding/OnboardingTour';
 import './index.css';
 
 function AppLayout() {
@@ -29,6 +30,7 @@ function AppLayout() {
         </main>
       </div>
       <Footer />
+      <OnboardingTour />
     </div>
   );
 }

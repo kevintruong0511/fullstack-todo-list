@@ -2,12 +2,22 @@ import { useTheme } from '../context/ThemeContext';
 import { useTasks } from '../hooks/useTasks';
 import { useFilter } from '../hooks/useFilter';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { startTour } from '../redux/onboardingSlice';
 
 export default function Settings() {
   const { theme, toggle } = useTheme();
   const { totalCount, activeCount, completedCount, reset } = useTasks();
   const { reset: resetFilters } = useFilter();
   const [confirmed, setConfirmed] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleReplayTour = () => {
+    dispatch(startTour());
+    navigate('/');
+  };
 
   const handleReset = () => {
     if (confirmed) {
@@ -80,6 +90,20 @@ export default function Settings() {
               <span className="about-value">{r.value}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Onboarding Tour */}
+      <div className="card settings-card">
+        <h2 className="card-title">📖 Hướng dẫn sử dụng</h2>
+        <div className="settings-row">
+          <div>
+            <p className="settings-label">Tour hướng dẫn</p>
+            <p className="settings-desc">Xem lại các bước làm quen với TaskFlow từ đầu.</p>
+          </div>
+          <button className="btn btn-secondary" onClick={handleReplayTour}>
+            ▶️ Xem lại hướng dẫn
+          </button>
         </div>
       </div>
 

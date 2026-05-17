@@ -20,6 +20,7 @@ const toPublic = (user) => ({
   id: user.id,
   email: user.email,
   name: user.name,
+  onboardingCompleted: user.onboarding_completed ?? false,
   createdAt: user.created_at,
 });
 
@@ -56,3 +57,4 @@ class AuthService {
 }
 
 module.exports = AuthService;
+module.exports.toPublic = toPublic;

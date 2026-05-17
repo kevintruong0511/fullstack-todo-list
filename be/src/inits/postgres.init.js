@@ -7,8 +7,14 @@ const initPostgres = async () => {
       email VARCHAR(255) UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
       name VARCHAR(120) NOT NULL,
+      onboarding_completed BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+  `;
+
+  const alterUsersAddOnboarding = `
+    ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN NOT NULL DEFAULT false;
   `;
 
   const dropTasksTable = `DROP TABLE IF EXISTS tasks CASCADE;`;
@@ -31,6 +37,7 @@ const initPostgres = async () => {
 
   try {
     await pool.query(createUsersTable);
+    await pool.query(alterUsersAddOnboarding);
     console.log('👤 Users table ready');
 
     const { rows } = await pool.query(

@@ -11,6 +11,7 @@ const { HTTP_STATUS } = require('./constants/httpStatus');
 // Import routes
 const taskRoutes = require('./app/task/task.route');
 const authRoutes = require('./app/auth/auth.route');
+const userRoutes = require('./app/user/user.route');
 const { authRequired } = require('./middlewares/authRequired');
 
 const app = express();
@@ -40,6 +41,7 @@ app.get('/health', (req, res) => {
 
 // ─── API Routes ──────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/tasks', authRequired, taskRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authApi } from '../api/authApi';
+import { userApi } from '../api/userApi';
 
 const readErr = (err) =>
   err?.response?.data?.message || err?.message || 'Request failed';
@@ -33,6 +34,18 @@ export const fetchMeThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await authApi.me();
+      return res.data.user;
+    } catch (err) {
+      return rejectWithValue(readErr(err));
+    }
+  }
+);
+
+export const completeOnboardingThunk = createAsyncThunk(
+  'auth/completeOnboarding',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await userApi.updateOnboarding(true);
       return res.data.user;
     } catch (err) {
       return rejectWithValue(readErr(err));
@@ -88,6 +101,13 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         localStorage.removeItem('token');
+      })
+
+      .addCase(completeOnboardingThunk.pending, (state) => {
+        if (state.user) state.user.onboardingCompleted = true;
+      })
+      .addCase(completeOnboardingThunk.fulfilled, (state, action) => {
+        state.user = action.payload;
       });
   },
 });
